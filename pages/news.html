@@ -1,0 +1,22 @@
+<div id="news">
+<h2>Releases</h2>
+<p>See all releases on <a href="https://github.com/MyGUI/mygui/releases">GitHub</a>.</p>
+<ul id="releases-list">
+	<li>Loading releases…</li>
+</ul>
+<script>
+fetch('https://api.github.com/repos/MyGUI/mygui/releases')
+	.then(function(r) { return r.json(); })
+	.then(function(data) {
+		var html = '';
+		data.slice(0, 5).forEach(function(r) {
+			var date = r.published_at.slice(0, 10);
+			var body = (r.body || '').replace(/### /g, '').replace(/\n\n[\s\S]*$/, '').trim();
+			html += '<li><span class="rel-version">' + r.tag_name + '</span> <span class="rel-date">(' + date + ')</span><div class="rel-body">' + body + '</div></li>';
+		});
+		document.getElementById('releases-list').innerHTML = html;
+	})['catch'](function() {
+		document.getElementById('releases-list').innerHTML = '<li>Failed to load releases.</li>';
+	});
+</script>
+</div>

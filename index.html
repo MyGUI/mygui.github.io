@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>MyGUI</title>
+<link rel="stylesheet" href="css/text.css" type="text/css" />
+<link rel="stylesheet" href="css/960.css" type="text/css" />
+<link rel="stylesheet" href="css/tabs.css" type="text/css" />
+<link rel="icon" href="images/mygui.ico" type="image/x-icon" />
+<style>
+body { margin: 30px; font-size: 10pt; }
+code { white-space: nowrap; }
+#releases-list { list-style: none; padding-left: 0; }
+#releases-list li { margin-bottom: 12px; }
+.rel-version { font-weight: bold; }
+.rel-date { color: #888; font-size: 90%; }
+.rel-body { margin: 4px 0 0; white-space: pre-wrap; font-size: 95%; }
+</style>
+</head>
+<body class="container_12">
+
+<div id="page" class="grid_10 prefix_1 suffix_1">
+
+<div id="header">
+	<table width="100%">
+	<tr width="100%" align="center">
+		<td width="40%" align="center"><a href="index.html"><img src="images/MyGUI_Logo.png" width="220" border="0"></a></td>
+		<td width="60%" style="white-space: nowrap">
+			<a href="#look" style="text-decoration: none">
+			<img src="images/screenshots/DragAndDrop.webp" width="121" border="0">&nbsp;
+			<img src="images/screenshots/ColorPicker.webp" width="121" border="0">&nbsp;
+			<img src="images/screenshots/FontViewer.webp" width="121" border="0">
+			</a>
+		</td>
+	</tr>
+	</table>
+</div>
+
+<div id="tabs" class="tab-container">
+	<ul class="tab-bar">
+		<li class="tab active"><a href="#news">News</a></li>
+		<li class="tab"><a href="#about">About</a></li>
+		<li class="tab"><a href="#projects">Projects</a></li>
+		<li class="tab"><a href="#look">Look!</a></li>
+		<li class="tab"><a href="#license">License</a></li>
+		<li class="tab"><a href="#download">Download</a></li>
+		<li class="tab"><a href="#docs">Docs</a></li>
+	</ul>
+
+	<div id="news" class="tab-panel"></div>
+	<div id="about" class="tab-panel" style="display: none;"></div>
+	<div id="projects" class="tab-panel" style="display: none;"></div>
+	<div id="look" class="tab-panel" style="display: none;"></div>
+	<div id="license" class="tab-panel" style="display: none;"></div>
+	<div id="download" class="tab-panel" style="display: none;"></div>
+	<div id="docs" class="tab-panel" style="display: none;"></div>
+
+</div>
+
+<br />
+
+<div id="logos" align="center">
+	<a href="http://www.thefarwilds.com"><img src="images/TheFarWilds.webp" /></a><br />
+	2007 – 2026
+</div>
+
+</div>
+
+<script>
+var cache = {};
+
+function execScripts(el) {
+	[].forEach.call(el.querySelectorAll('script'), function(s) {
+		var ns = document.createElement('script');
+		if (s.src) ns.src = s.src;
+		else ns.textContent = s.textContent;
+		s.parentNode.replaceChild(ns, s);
+	});
+}
+
+function loadPanel(id, cb) {
+	var panel = document.getElementById(id);
+	if (cache[id]) {
+		panel.innerHTML = cache[id];
+		execScripts(panel);
+		if (cb) cb();
+		return;
+	}
+	panel.innerHTML = '<p>Loading…</p>';
+	fetch('pages/' + id + '.html')
+		.then(function(r) { return r.text(); })
+		.then(function(html) {
+			var tmp = document.createElement('div');
+			tmp.innerHTML = html;
+			var inner = tmp.firstElementChild.innerHTML;
+			cache[id] = inner;
+			panel.innerHTML = inner;
+			execScripts(panel);
+			if (cb) cb();
+		})['catch'](function() {
+			panel.innerHTML = '<p>Failed to load content.</p>';
+			if (cb) cb();
+		});
+}
+
+(function(){
+	var hash = window.location.hash || '#news';
+	function select(id) {
+		loadPanel(id, function() {
+			[].forEach.call(document.querySelectorAll('.tab-panel'), function(p) { p.style.display = 'none'; });
+			[].forEach.call(document.querySelectorAll('.tab-bar li'), function(li) { li.className = 'tab'; });
+			var panel = document.getElementById(id);
+			if (panel) panel.style.display = 'block';
+			var tab = document.querySelector('.tab-bar a[href="#' + id + '"]');
+			if (tab) tab.parentNode.className = 'tab active';
+		});
+	}
+	select(hash.slice(1));
+	window.addEventListener('hashchange', function() {
+		select(window.location.hash.slice(1));
+	});
+})();
+</script>
+
+</body>
+</html>
